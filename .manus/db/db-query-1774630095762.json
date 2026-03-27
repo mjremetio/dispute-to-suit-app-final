@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `__drizzle_migrations` (`hash`, `created_at`) VALUES ('478c525b61c7095acd690003d1102e9cf49652bf86ba982b4687c8917aa52c9c', 1774629960399);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute INSERT INTO `__drizzle_migrations` (`hash`, `created_at`) VALUES ('478c525b61c7095acd690003d1102e9cf49652bf86ba982b4687c8917aa52c9c', 1774629960399);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1518
+}

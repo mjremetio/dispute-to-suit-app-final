@@ -1,0 +1,24 @@
+# Project TODO - Dispute2Suit Credit Repair & FCRA Litigation Platform
+
+- [x] Copy database schema from repository (users, partners, clients, cases, tasks, documents, activityLogs, notifications, passwordResetTokens, inviteTokens, rateLimits, caseComments, externalLinks, signatureTemplates, croApplications, intakeInquiries)
+- [x] Run database migrations to create all tables
+- [x] Copy server db.ts with all query helpers
+- [x] Copy server routers.ts with all tRPC procedures
+- [x] Copy server middleware (role-based procedures)
+- [x] Copy server services (AOC generator, notification service)
+- [x] Copy server email templates and email service
+- [x] Copy server file routes and upload handler
+- [x] Copy server storage.ts
+- [x] Update server/_core/env.ts with additional env vars
+- [x] Copy shared files (const.ts, types.ts, caseChecklist.ts)
+- [x] Copy all frontend pages (Dashboard, Cases, CaseDetail, Clients, Login, AdminLogin, etc.)
+- [x] Copy admin pages (Users, ActivityLogs, CROApplications, CROManagement, InviteTokens)
+- [x] Copy client portal pages (ClientDashboard, ClientCases, ClientCaseDetail, ClientDocuments, ClientComments, ClientTimeline)
+- [x] Copy CRO portal pages (CRODashboard, CROClients, CROCases, CROCaseDetail, CROIntakeForm, CROInquiries)
+- [x] Copy all custom components (DashboardLayout, CROLayout, ClientLayout, StatusBadge, SignaturePad, etc.)
+- [x] Copy App.tsx with all routes
+- [x] Copy index.css with professional law firm theme
+- [x] Install additional dependencies (bcryptjs, multer, pdf-lib, @sendgrid/mail, sharp)
+- [x] Seed admin user (owner auto-promoted to admin via OAuth)
+- [x] Run tests and fix issues (51 passed, 4 skipped for SendGrid)
+- [x] Save checkpoint and publish

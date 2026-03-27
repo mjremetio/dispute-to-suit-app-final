@@ -7,4 +7,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  sendgridApiKey: process.env.SENDGRID_API_KEY ?? "",
+  senderEmail: process.env.SENDER_EMAIL ?? "noreply@dispute2suit.com",
+  appUrl: process.env.VITE_APP_URL ?? "https://dispute2suit.manus.space",
 };

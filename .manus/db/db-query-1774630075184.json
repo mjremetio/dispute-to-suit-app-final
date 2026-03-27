@@ -1,0 +1,15 @@
+{
+  "query": "\nCREATE TABLE IF NOT EXISTS `__drizzle_migrations` (\n  `id` bigint unsigned NOT NULL AUTO_INCREMENT,\n  `hash` text NOT NULL,\n  `created_at` bigint,\n  PRIMARY KEY (`id`)\n);\n\nSELECT * FROM `__drizzle_migrations` ORDER BY id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute \nCREATE TABLE IF NOT EXISTS `__drizzle_migrations` (\n  `id` bigint unsigned NOT NULL AUTO_INCREMENT,\n  `hash` text NOT NULL,\n  `created_at` bigint,\n  PRIMARY KEY (`id`)\n);\n\nSELECT * FROM `__drizzle_migrations` ORDER BY id;\n",
+  "rows": [
+    {
+      "id": "1",
+      "hash": "814a08e40d7fc2bcfd458759d18319198ca8ae394f2fa15617a78678e9c9c93b",
+      "created_at": "1774629487014"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\thash\tcreated_at\n1\t814a08e40d7fc2bcfd458759d18319198ca8ae394f2fa15617a78678e9c9c93b\t1774629487014\n",
+  "stderr": "",
+  "execution_time_ms": 1880
+}
