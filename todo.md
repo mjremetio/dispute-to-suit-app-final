@@ -35,3 +35,4 @@
 - [x] Add PATCH /cases/:id/status write endpoint
 - [x] Update OpenAPI spec with new write endpoints
 - [x] Test all new endpoints end-to-end — 42/42 passed
+- [x] Fix deployment failure: openapi.yaml not found in production build (ENOENT)
