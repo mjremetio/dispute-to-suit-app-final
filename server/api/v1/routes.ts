@@ -10,6 +10,9 @@ import {
   getEnrichedTimelineByCaseId,
   getCommentsByCaseId,
   getCasesByClientId,
+  createCaseComment,
+  updateCase,
+  createActivityLog,
 } from "../../db";
 
 const router = Router();
@@ -309,6 +312,155 @@ router.get("/cases/:id/comments", requirePermission("cases:read"), async (req: R
     });
   } catch (error) {
     console.error("[API v1] case comments error:", error);
+    return res.status(500).json({ success: false, error: "Internal server error." });
+  }
+});
+
+// ============= WRITE ENDPOINTS =============
+
+const VALID_STATUSES = [
+  "new", "pending_review", "in_review", "more_info_needed",
+  "ready_for_attorney", "sent_to_attorney", "accepted_by_attorney",
+  "rejected", "settled", "settlement_paid_out", "closed",
+] as const;
+
+/**
+ * POST /cases/:id/comments
+ * Add a comment to a case. Requires cases:write permission.
+ */
+router.post("/cases/:id/comments", requirePermission("cases:write"), async (req: Request, res: Response) => {
+  try {
+    const partnerId = req.apiPartner!.id;
+    const caseId = parseInt(req.params.id);
+    if (isNaN(caseId)) {
+      return res.status(400).json({ success: false, error: "Invalid case ID." });
+    }
+
+    const caseData = await getCaseById(caseId);
+    if (!caseData || caseData.partnerId !== partnerId) {
+      return res.status(404).json({ success: false, error: "Case not found." });
+    }
+
+    // Validate request body
+    const { comment } = req.body || {};
+    if (!comment || typeof comment !== "string" || comment.trim().length === 0) {
+      return res.status(400).json({ success: false, error: "Field 'comment' is required and must be a non-empty string." });
+    }
+    if (comment.length > 5000) {
+      return res.status(400).json({ success: false, error: "Comment must not exceed 5000 characters." });
+    }
+
+    const partnerName = req.apiPartner!.companyName || req.apiPartner!.name || "API Partner";
+
+    const commentId = await createCaseComment({
+      caseId,
+      userId: 0, // API-sourced comment, no user session
+      userName: `${partnerName} (API)`,
+      userRole: "partner",
+      comment: comment.trim(),
+    });
+
+    // Log the activity
+    await createActivityLog({
+      partnerId,
+      caseId,
+      action: "comment_added",
+      description: `Comment added via API by ${partnerName}`,
+      metadata: JSON.stringify({ source: "api_v1", apiKeyId: req.apiKey!.id }),
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        id: commentId,
+        caseId,
+        userName: `${partnerName} (API)`,
+        userRole: "partner",
+        comment: comment.trim(),
+        createdAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("[API v1] post comment error:", error);
+    return res.status(500).json({ success: false, error: "Internal server error." });
+  }
+});
+
+/**
+ * PATCH /cases/:id/status
+ * Update the status of a case. Requires cases:write permission.
+ */
+router.patch("/cases/:id/status", requirePermission("cases:write"), async (req: Request, res: Response) => {
+  try {
+    const partnerId = req.apiPartner!.id;
+    const caseId = parseInt(req.params.id);
+    if (isNaN(caseId)) {
+      return res.status(400).json({ success: false, error: "Invalid case ID." });
+    }
+
+    const caseData = await getCaseById(caseId);
+    if (!caseData || caseData.partnerId !== partnerId) {
+      return res.status(404).json({ success: false, error: "Case not found." });
+    }
+
+    // Validate request body
+    const { status, reason } = req.body || {};
+    if (!status || typeof status !== "string") {
+      return res.status(400).json({ success: false, error: "Field 'status' is required." });
+    }
+    if (!VALID_STATUSES.includes(status as any)) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`,
+      });
+    }
+
+    const previousStatus = caseData.status;
+    if (status === previousStatus) {
+      return res.status(400).json({ success: false, error: "Case is already in the requested status." });
+    }
+
+    // Build update payload
+    const updates: Record<string, any> = {
+      status,
+      updatedAt: new Date(),
+    };
+    // Auto-set completedAt / closedAt timestamps
+    if (["settled", "settlement_paid_out", "closed"].includes(status)) {
+      if (!caseData.completedAt) updates.completedAt = new Date();
+      if (status === "closed" && !caseData.closedAt) updates.closedAt = new Date();
+    }
+
+    await updateCase(caseId, updates);
+
+    const partnerName = req.apiPartner!.companyName || req.apiPartner!.name || "API Partner";
+
+    // Log the activity
+    await createActivityLog({
+      partnerId,
+      caseId,
+      action: "status_changed",
+      description: `Case status changed from "${previousStatus}" to "${status}" via API by ${partnerName}${reason ? ` — ${reason}` : ""}`,
+      metadata: JSON.stringify({
+        source: "api_v1",
+        apiKeyId: req.apiKey!.id,
+        previousStatus,
+        newStatus: status,
+        reason: reason || null,
+      }),
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        id: caseId,
+        previousStatus,
+        status,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("[API v1] patch status error:", error);
     return res.status(500).json({ success: false, error: "Internal server error." });
   }
 });

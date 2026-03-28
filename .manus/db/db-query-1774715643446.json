@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, partnerId, name, keyPrefix, isActive, expiresAt FROM apiKeys;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute SELECT id, partnerId, name, keyPrefix, isActive, expiresAt FROM apiKeys;",
+  "rows": [
+    {
+      "id": "1",
+      "partnerId": "1",
+      "name": "Test API Key",
+      "keyPrefix": "d2s_5GCZ81w2",
+      "isActive": "1",
+      "expiresAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpartnerId\tname\tkeyPrefix\tisActive\texpiresAt\n1\t1\tTest API Key\td2s_5GCZ81w2\t1\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1501
+}

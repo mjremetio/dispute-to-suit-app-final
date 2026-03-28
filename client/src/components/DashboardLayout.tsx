@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, Settings, Activity, ClipboardList, UserPlus, Building2, Key } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, Settings, Activity, ClipboardList, UserPlus, Building2, Key, BookOpen } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -38,7 +38,8 @@ const sharedMenuItems = [
   { icon: Settings, label: "Users", path: "/admin/users" },
   { icon: Activity, label: "Activity Logs", path: "/admin/activity" },
   { icon: Key, label: "API Keys", path: "/admin/api-keys" },
-];
+  { icon: BookOpen, label: "API Docs", path: "/api/docs", external: true },
+] as const;
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -185,12 +186,19 @@ function DashboardLayoutContent({
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
               {menuItems.map(item => {
-                const isActive = location === item.path || location.startsWith(item.path + "/");
+                const isExternal = 'external' in item && item.external;
+                const isActive = !isExternal && (location === item.path || location.startsWith(item.path + "/"));
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      onClick={() => setLocation(item.path)}
+                      onClick={() => {
+                        if (isExternal) {
+                          window.open(item.path, '_blank', 'noopener,noreferrer');
+                        } else {
+                          setLocation(item.path);
+                        }
+                      }}
                       tooltip={item.label}
                       className={`h-10 transition-all font-normal`}
                     >
@@ -198,6 +206,9 @@ function DashboardLayoutContent({
                         className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
                       />
                       <span>{item.label}</span>
+                      {isExternal && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-auto opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

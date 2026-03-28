@@ -2,9 +2,10 @@ openapi: 3.0.3
 info:
   title: Dispute2Suit REST API
   description: |
-    The Dispute2Suit REST API v1 provides programmatic, read-only access to client, case, document,
-    and dashboard data for authorized partners. Every request is scoped to the partner associated
-    with the API key, ensuring strict data isolation between organizations.
+    The Dispute2Suit REST API v1 provides programmatic access to client, case, document,
+    and dashboard data for authorized partners. Read endpoints retrieve data, while write endpoints
+    allow partners to add comments and update case statuses. Every request is scoped to the partner
+    associated with the API key, ensuring strict data isolation between organizations.
 
     ## Authentication
 
@@ -384,23 +385,87 @@ components:
           type: integer
           description: Associated case ID
           example: 3
-        content:
+        userName:
+          type: string
+          description: Name of the comment author
+          example: Test Law Firm LLC (API)
+        userRole:
+          type: string
+          description: Role of the comment author
+          example: partner
+        comment:
           type: string
           description: Comment text content
           example: Initial review completed. Proceeding with dispute letter.
-        isInternal:
-          type: boolean
-          description: Whether the comment is internal (not visible to client)
-          example: false
         createdAt:
           type: string
           format: date-time
           description: Comment timestamp (UTC)
           example: "2026-03-22T15:30:00.000Z"
-        userName:
+        updatedAt:
           type: string
-          description: Name of the comment author
-          example: Steven Gomez
+          format: date-time
+          description: Last update timestamp (UTC)
+          example: "2026-03-22T15:30:00.000Z"
+
+    CommentInput:
+      type: object
+      required:
+        - comment
+      properties:
+        comment:
+          type: string
+          description: Comment text (1–5000 characters)
+          example: Client provided additional documentation for the dispute.
+          minLength: 1
+          maxLength: 5000
+
+    StatusUpdateInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - new
+            - pending_review
+            - in_review
+            - more_info_needed
+            - ready_for_attorney
+            - sent_to_attorney
+            - accepted_by_attorney
+            - rejected
+            - settled
+            - settlement_paid_out
+            - closed
+          description: The new status to set on the case
+          example: in_review
+        reason:
+          type: string
+          description: Optional reason for the status change (recorded in activity log)
+          example: Attorney reviewed and accepted the case.
+
+    StatusUpdateResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Case ID
+          example: 3
+        previousStatus:
+          type: string
+          description: The status before the update
+          example: new
+        status:
+          type: string
+          description: The new current status
+          example: in_review
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the update (UTC)
+          example: "2026-03-28T16:00:00.000Z"
 
     ErrorResponse:
       type: object
@@ -898,6 +963,177 @@ paths:
                       $ref: '#/components/schemas/Comment'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      operationId: addCaseComment
+      summary: Add a comment to a case
+      description: |
+        Creates a new comment on a specific case. The comment is attributed to the
+        partner organization associated with the API key, with the author name
+        displayed as `"<Partner Name> (API)"`.
+
+        An activity log entry is automatically created to record the action.
+
+        **Permission required:** `cases:write`
+      tags:
+        - Cases
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Case numeric ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+            example:
+              comment: Client provided additional documentation for the dispute.
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Comment'
+              example:
+                success: true
+                data:
+                  id: 5
+                  caseId: 3
+                  userName: "Test Law Firm LLC (API)"
+                  userRole: partner
+                  comment: Client provided additional documentation for the dispute.
+                  createdAt: "2026-03-28T16:00:00.000Z"
+        '400':
+          description: Validation error (missing or invalid comment)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_comment:
+                  summary: Comment field is missing or empty
+                  value:
+                    success: false
+                    error: "Field 'comment' is required and must be a non-empty string."
+                too_long:
+                  summary: Comment exceeds 5000 characters
+                  value:
+                    success: false
+                    error: Comment must not exceed 5000 characters.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /cases/{id}/status:
+    patch:
+      operationId: updateCaseStatus
+      summary: Update case status
+      description: |
+        Updates the status of a specific case. The request must include a valid
+        status value from the allowed enum. An optional `reason` field is recorded
+        in the activity log for audit purposes.
+
+        When a case transitions to a terminal status (`settled`, `settlement_paid_out`,
+        or `closed`), the `completedAt` and/or `closedAt` timestamps are automatically
+        set if not already present.
+
+        Returns an error if the case is already in the requested status.
+
+        **Permission required:** `cases:write`
+      tags:
+        - Cases
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Case numeric ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdateInput'
+            examples:
+              basic:
+                summary: Simple status change
+                value:
+                  status: in_review
+              with_reason:
+                summary: Status change with reason
+                value:
+                  status: accepted_by_attorney
+                  reason: Attorney reviewed and accepted the case.
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/StatusUpdateResponse'
+              example:
+                success: true
+                data:
+                  id: 3
+                  previousStatus: new
+                  status: in_review
+                  updatedAt: "2026-03-28T16:00:00.000Z"
+        '400':
+          description: Validation error (invalid or duplicate status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_status:
+                  summary: Status field is missing
+                  value:
+                    success: false
+                    error: "Field 'status' is required."
+                invalid_status:
+                  summary: Status value is not in the allowed enum
+                  value:
+                    success: false
+                    error: "Invalid status. Must be one of: new, pending_review, in_review, more_info_needed, ready_for_attorney, sent_to_attorney, accepted_by_attorney, rejected, settled, settlement_paid_out, closed"
+                same_status:
+                  summary: Case is already in the requested status
+                  value:
+                    success: false
+                    error: Case is already in the requested status.
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':

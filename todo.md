@@ -30,3 +30,8 @@
 - [x] Generate OpenAPI 3.0 YAML specification from API documentation
 - [x] Integrate interactive Swagger UI explorer at /api/docs
 - [x] Test Swagger UI renders correctly and spec validates
+- [x] Add API Docs link to admin sidebar navigation
+- [x] Add POST /cases/:id/comments write endpoint
+- [x] Add PATCH /cases/:id/status write endpoint
+- [x] Update OpenAPI spec with new write endpoints
+- [x] Test all new endpoints end-to-end — 42/42 passed
