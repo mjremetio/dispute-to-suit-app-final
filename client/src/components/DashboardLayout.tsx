@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, Settings, Activity, ClipboardList, UserPlus, Building2 } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, Settings, Activity, ClipboardList, UserPlus, Building2, Key } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -37,6 +37,7 @@ const sharedMenuItems = [
   { icon: Building2, label: "CRO Management", path: "/admin/cro-management" },
   { icon: Settings, label: "Users", path: "/admin/users" },
   { icon: Activity, label: "Activity Logs", path: "/admin/activity" },
+  { icon: Key, label: "API Keys", path: "/admin/api-keys" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

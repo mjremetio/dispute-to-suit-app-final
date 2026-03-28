@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { fileRouter } from "../fileRoutes";
+import { apiV1Router } from "../api/v1/routes";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,6 +39,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // File upload/download routes
   app.use("/api/files", fileRouter);
+  // External REST API v1 (API key authenticated)
+  app.use("/api/v1", apiV1Router);
   // tRPC API
   app.use(
     "/api/trpc",
