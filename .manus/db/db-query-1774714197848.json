@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `apiKeys` (`partnerId`, `keyHash`, `keyPrefix`, `name`, `permissions`, `isActive`, `createdBy`, `createdAt`, `updatedAt`) VALUES (1, '$2b$10$B3Ia/uYqddAALNoiOjQ5Q.mWTx0QSlqa5kcE5gBGMAUQGVBWhvR.2', 'd2s_5GCZ81w2', 'Test API Key', '[\"*\"]', true, 60014, NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute INSERT INTO `apiKeys` (`partnerId`, `keyHash`, `keyPrefix`, `name`, `permissions`, `isActive`, `createdBy`, `createdAt`, `updatedAt`) VALUES (1, '$2b$10$B3Ia/uYqddAALNoiOjQ5Q.mWTx0QSlqa5kcE5gBGMAUQGVBWhvR.2', 'd2s_5GCZ81w2', 'Test API Key', '[\"*\"]', true, 60014, NOW(), NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1558
+}

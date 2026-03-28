@@ -25,3 +25,5 @@
 - [x] Create test Admin user account
 - [x] Create test CRO user account
 - [x] Create test Client user account (with client record and partner)
+- [x] Test REST API v1 endpoints end-to-end (create API key, test all routes) — 28/28 passed
+- [x] Generate comprehensive REST API v1 documentation
