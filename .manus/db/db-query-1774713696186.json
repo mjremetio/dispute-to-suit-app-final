@@ -1,0 +1,9 @@
+{
+  "query": "\nCREATE TABLE `apiKeys` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`partnerId` int NOT NULL,\n\t`keyHash` varchar(255) NOT NULL,\n\t`keyPrefix` varchar(12) NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`permissions` text,\n\t`isActive` boolean NOT NULL DEFAULT true,\n\t`lastUsedAt` timestamp,\n\t`expiresAt` timestamp,\n\t`createdBy` int NOT NULL,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `apiKeys_id` PRIMARY KEY(`id`)\n);\nCREATE INDEX `apikey_partnerId_idx` ON `apiKeys` (`partnerId`);\nCREATE INDEX `apikey_keyPrefix_idx` ON `apiKeys` (`keyPrefix`);\nCREATE INDEX `apikey_isActive_idx` ON `apiKeys` (`isActive`);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute \nCREATE TABLE `apiKeys` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`partnerId` int NOT NULL,\n\t`keyHash` varchar(255) NOT NULL,\n\t`keyPrefix` varchar(12) NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`permissions` text,\n\t`isActive` boolean NOT NULL DEFAULT true,\n\t`lastUsedAt` timestamp,\n\t`expiresAt` timestamp,\n\t`createdBy` int NOT NULL,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `apiKeys_id` PRIMARY KEY(`id`)\n);\nCREATE INDEX `apikey_partnerId_idx` ON `apiKeys` (`partnerId`);\nCREATE INDEX `apikey_keyPrefix_idx` ON `apiKeys` (`keyPrefix`);\nCREATE INDEX `apikey_isActive_idx` ON `apiKeys` (`isActive`);\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2774
+}
