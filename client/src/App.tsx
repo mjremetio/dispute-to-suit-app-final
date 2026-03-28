@@ -40,6 +40,7 @@ import ClientTimeline from "./pages/client-portal/ClientTimeline";
 import CROApplications from "./pages/admin/CROApplications";
 import CROManagement from "./pages/admin/CROManagement";
 import IntakeInquiries from "./pages/IntakeInquiries";
+import ApiKeys from "./pages/admin/ApiKeys";
 
 // Role-based redirect helper
 function AuthRedirect() {
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/admin/cro-applications" component={CROApplications} />
       <Route path="/admin/cro-management" component={CROManagement} />
       <Route path="/admin/intake-inquiries" component={IntakeInquiries} />
+      <Route path="/admin/api-keys" component={ApiKeys} />
 
       {/* Client Portal routes */}
       <Route path="/client-portal" component={ClientDashboard} />

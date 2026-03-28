@@ -426,3 +426,28 @@ export const intakeInquiries = mysqlTable("intakeInquiries", {
 
 export type IntakeInquiry = typeof intakeInquiries.$inferSelect;
 export type InsertIntakeInquiry = typeof intakeInquiries.$inferInsert;
+
+/**
+ * API Keys for external REST API access (credit repair software integration)
+ */
+export const apiKeys = mysqlTable("apiKeys", {
+  id: int("id").autoincrement().primaryKey(),
+  partnerId: int("partnerId").notNull(),
+  keyHash: varchar("keyHash", { length: 255 }).notNull(),
+  keyPrefix: varchar("keyPrefix", { length: 12 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  permissions: text("permissions"), // JSON array e.g. ["clients:read","cases:read","documents:read"]
+  isActive: boolean("isActive").default(true).notNull(),
+  lastUsedAt: timestamp("lastUsedAt"),
+  expiresAt: timestamp("expiresAt"),
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  partnerIdIdx: index("apikey_partnerId_idx").on(table.partnerId),
+  keyPrefixIdx: index("apikey_keyPrefix_idx").on(table.keyPrefix),
+  isActiveIdx: index("apikey_isActive_idx").on(table.isActive),
+}));
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = typeof apiKeys.$inferInsert;

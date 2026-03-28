@@ -17,6 +17,7 @@ import {
   croApplications, InsertCroApplication, CroApplication,
   intakeInquiries, InsertIntakeInquiry, IntakeInquiry,
   notifications, InsertNotification, Notification,
+  apiKeys, InsertApiKey, ApiKey,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1161,4 +1162,62 @@ export async function getCaseNotificationRecipients(caseId: number, excludeUserI
   recipientIds.delete(excludeUserId);
 
   return Array.from(recipientIds);
+}
+
+// ============= API KEY FUNCTIONS =============
+
+export async function createApiKey(data: InsertApiKey): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [result] = await db.insert(apiKeys).values(data);
+  return Number(result.insertId);
+}
+
+export async function getApiKeysByPrefix(prefix: string): Promise<ApiKey[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(apiKeys).where(eq(apiKeys.keyPrefix, prefix));
+}
+
+export async function getApiKeysByPartnerId(partnerId: number): Promise<ApiKey[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(apiKeys).where(eq(apiKeys.partnerId, partnerId)).orderBy(desc(apiKeys.createdAt));
+}
+
+export async function getAllApiKeys(): Promise<ApiKey[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(apiKeys).orderBy(desc(apiKeys.createdAt));
+}
+
+export async function getApiKeyById(id: number): Promise<ApiKey | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(apiKeys).where(eq(apiKeys.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateApiKey(id: number, updates: Partial<InsertApiKey>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(apiKeys).set(updates).where(eq(apiKeys.id, id));
+}
+
+export async function deleteApiKey(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(apiKeys).where(eq(apiKeys.id, id));
+}
+
+export async function updateApiKeyLastUsed(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(apiKeys).set({ lastUsedAt: new Date() }).where(eq(apiKeys.id, id));
+}
+
+export async function getClientsByPartnerId(partnerId: number): Promise<Client[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(clients).where(eq(clients.partnerId, partnerId)).orderBy(desc(clients.createdAt));
 }

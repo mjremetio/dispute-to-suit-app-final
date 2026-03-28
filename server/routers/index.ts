@@ -10,3 +10,4 @@ export { activityRouter } from "./activity.router";
 export { notificationsRouter } from "./notifications.router";
 export { signatureTemplatesRouter } from "./signatureTemplates.router";
 export { externalLinksRouter } from "./externalLinks.router";
+export { apiKeysRouter } from "./apiKeys.router";

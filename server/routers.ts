@@ -15,6 +15,7 @@ import {
   notificationsRouter,
   signatureTemplatesRouter,
   externalLinksRouter,
+  apiKeysRouter,
 } from "./routers/index";
 
 // Extracted middleware (SOLID: Open/Closed for role-based access)
@@ -1390,6 +1391,8 @@ export const appRouter = router({
   externalLinks: externalLinksRouter,
 
   signatureTemplates: signatureTemplatesRouter,
+
+  apiKeys: apiKeysRouter,
 
   users: usersRouter,
   notifications: notificationsRouter,

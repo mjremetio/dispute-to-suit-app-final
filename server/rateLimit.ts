@@ -11,6 +11,7 @@ const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   login: { windowMs: 15 * 60 * 1000, maxRequests: 10 }, // 10 per 15 minutes
   forgot_password: { windowMs: 60 * 60 * 1000, maxRequests: 3 }, // 3 per hour
   reset_password: { windowMs: 60 * 60 * 1000, maxRequests: 5 }, // 5 per hour
+  api_v1: { windowMs: 15 * 60 * 1000, maxRequests: 100 }, // 100 per 15 minutes
 };
 
 /**
