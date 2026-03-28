@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id FROM users WHERE email = 'admin@dispute2suit.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute SELECT id FROM users WHERE email = 'admin@dispute2suit.com';",
+  "rows": [
+    {
+      "id": "60014"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\n60014\n",
+  "stderr": "",
+  "execution_time_ms": 2285
+}

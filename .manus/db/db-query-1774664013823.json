@@ -1,0 +1,9 @@
+{
+  "query": "\nINSERT INTO `users` (`openId`, `name`, `email`, `role`, `password_hash`, `isActive`, `mustChangePassword`, `trialDays`, `createdAt`, `updatedAt`, `lastSignedIn`)\nVALUES ('test-client-openid-003', 'Test Client', 'client@dispute2suit.com', 'client', '$2b$10$fpY6JoaAkTI95nHWL43oYunsH1DmMOgWotkn9BQmrglhaa/Nx/V8i', true, false, 3, NOW(), NOW(), NOW());\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute \nINSERT INTO `users` (`openId`, `name`, `email`, `role`, `password_hash`, `isActive`, `mustChangePassword`, `trialDays`, `createdAt`, `updatedAt`, `lastSignedIn`)\nVALUES ('test-client-openid-003', 'Test Client', 'client@dispute2suit.com', 'client', '$2b$10$fpY6JoaAkTI95nHWL43oYunsH1DmMOgWotkn9BQmrglhaa/Nx/V8i', true, false, 3, NOW(), NOW(), NOW());\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1591
+}

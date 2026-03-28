@@ -1,0 +1,8 @@
+{
+  "query": "\nINSERT INTO `clients` (`firstName`, `lastName`, `email`, `phone`, `stage`, `portalUserId`, `createdAt`, `updatedAt`)\nVALUES ('Test', 'Client', 'client@dispute2suit.com', '555-0100', 'active', 60017, NOW(), NOW());\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute \nINSERT INTO `clients` (`firstName`, `lastName`, `email`, `phone`, `stage`, `portalUserId`, `createdAt`, `updatedAt`)\nVALUES ('Test', 'Client', 'client@dispute2suit.com', '555-0100', 'active', 60017, NOW(), NOW());\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1364 (HY000) at line 2: Field 'partnerId' doesn't have a default value"
+  ]
+}

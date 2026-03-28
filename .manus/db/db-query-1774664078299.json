@@ -1,0 +1,37 @@
+{
+  "query": "SELECT u.id, u.name, u.email, u.role, u.isActive, u.password_hash IS NOT NULL as hasPassword, u.mustChangePassword FROM users u WHERE u.email IN ('admin@dispute2suit.com', 'cro@dispute2suit.com', 'client@dispute2suit.com');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute SELECT u.id, u.name, u.email, u.role, u.isActive, u.password_hash IS NOT NULL as hasPassword, u.mustChangePassword FROM users u WHERE u.email IN ('admin@dispute2suit.com', 'cro@dispute2suit.com', 'client@dispute2suit.com');",
+  "rows": [
+    {
+      "id": "60014",
+      "name": "Test Admin",
+      "email": "admin@dispute2suit.com",
+      "role": "admin",
+      "isActive": "1",
+      "hasPassword": "1",
+      "mustChangePassword": "0"
+    },
+    {
+      "id": "60015",
+      "name": "Test CRO",
+      "email": "cro@dispute2suit.com",
+      "role": "cro",
+      "isActive": "1",
+      "hasPassword": "1",
+      "mustChangePassword": "0"
+    },
+    {
+      "id": "60017",
+      "name": "Test Client",
+      "email": "client@dispute2suit.com",
+      "role": "client",
+      "isActive": "1",
+      "hasPassword": "1",
+      "mustChangePassword": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tisActive\thasPassword\tmustChangePassword\n60014\tTest Admin\tadmin@dispute2suit.com\tadmin\t1\t1\t0\n60015\tTest CRO\tcro@dispute2suit.com\tcro\t1\t1\t0\n60017\tTest Client\tclient@dispute2suit.com\tclient\t1\t1\t0\n",
+  "stderr": "",
+  "execution_time_ms": 1568
+}

@@ -22,3 +22,6 @@
 - [x] Seed admin user (owner auto-promoted to admin via OAuth)
 - [x] Run tests and fix issues (51 passed, 4 skipped for SendGrid)
 - [x] Save checkpoint and publish
+- [x] Create test Admin user account
+- [x] Create test CRO user account
+- [x] Create test Client user account (with client record and partner)

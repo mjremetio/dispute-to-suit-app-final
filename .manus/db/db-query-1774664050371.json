@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id FROM partners WHERE email = 'partner@dispute2suit.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute SELECT id FROM partners WHERE email = 'partner@dispute2suit.com';",
+  "rows": [
+    {
+      "id": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\n1\n",
+  "stderr": "",
+  "execution_time_ms": 1551
+}

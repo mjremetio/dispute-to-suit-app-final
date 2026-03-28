@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, openId, name, email, role, isActive, password_hash IS NOT NULL as hasPassword FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user jTD27C4DVf3gWq7.ec1f888fa507 --database 2pMTSuGvT3WVbQBjwjQyB5 --execute SELECT id, openId, name, email, role, isActive, password_hash IS NOT NULL as hasPassword FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "7us99fQ9Y8uJiDP4f5EL6p",
+      "name": "Steven Gomez",
+      "email": "gomezsteve1379@gmail.com",
+      "role": "admin",
+      "isActive": "1",
+      "hasPassword": "0"
+    },
+    {
+      "id": "6",
+      "openId": "BDlQireKVfWvycbD",
+      "name": "Test CRO User",
+      "email": "testcro@example.com",
+      "role": "cro",
+      "isActive": "1",
+      "hasPassword": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\tisActive\thasPassword\n1\t7us99fQ9Y8uJiDP4f5EL6p\tSteven Gomez\tgomezsteve1379@gmail.com\tadmin\t1\t0\n6\tBDlQireKVfWvycbD\tTest CRO User\ttestcro@example.com\tcro\t1\t1\n",
+  "stderr": "",
+  "execution_time_ms": 1699
+}
