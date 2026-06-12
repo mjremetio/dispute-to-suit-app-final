@@ -22,6 +22,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { FileText, Upload, File, PenTool, Check, Eye, X, Briefcase, FolderOpen, Save } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 import { toast } from "sonner";
 
 // Inline signature pad for client portal - supports draw and saved templates
@@ -287,6 +288,10 @@ export default function ClientDocuments() {
 
   const [signDocId, setSignDocId] = useState<number | null>(null);
   const [signDocName, setSignDocName] = useState("");
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const openPreview = (doc: any) => { setPreviewDoc(doc); setIsPreviewOpen(true); };
 
   const getUploadUrlMutation = trpc.clientPortal.getUploadUrl.useMutation();
   const uploadMutation = trpc.clientPortal.uploadDocument.useMutation({
@@ -349,6 +354,7 @@ export default function ClientDocuments() {
 
   return (
     <ClientLayout>
+      <DocumentPreviewModal open={isPreviewOpen} onOpenChange={setIsPreviewOpen} document={previewDoc} />
       <div className="space-y-8">
         <div className="border-b border-slate-200 pb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -424,8 +430,8 @@ export default function ClientDocuments() {
                           <PenTool className="w-3 h-3 mr-1" /> Signature Required
                         </Badge>
                         {doc.fileUrl && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-1" /> View</a>
+                          <Button variant="ghost" size="sm" onClick={() => openPreview(doc)}>
+                            <Eye className="w-4 h-4 mr-1" /> Preview
                           </Button>
                         )}
                         <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={() => { setSignDocId(doc.id); setSignDocName(doc.fileName); }}>
@@ -459,8 +465,8 @@ export default function ClientDocuments() {
                           <Check className="w-3 h-3 mr-1" /> Signed
                         </Badge>
                         {doc.fileUrl && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-1" /> View</a>
+                          <Button variant="ghost" size="sm" onClick={() => openPreview(doc)}>
+                            <Eye className="w-4 h-4 mr-1" /> Preview
                           </Button>
                         )}
                       </div>
@@ -486,8 +492,8 @@ export default function ClientDocuments() {
                           </p>
                         </div>
                         {doc.fileUrl && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer"><Eye className="w-4 h-4 mr-1" /> View</a>
+                          <Button variant="ghost" size="sm" onClick={() => openPreview(doc)}>
+                            <Eye className="w-4 h-4 mr-1" /> Preview
                           </Button>
                         )}
                       </div>

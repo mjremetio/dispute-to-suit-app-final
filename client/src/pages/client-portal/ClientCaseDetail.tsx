@@ -43,6 +43,7 @@ import { useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import CaseStageTimeline from "@/components/CaseStageTimeline";
 import DocumentPreviewModal from "@/components/DocumentPreviewModal";
+import { Link2 } from "lucide-react";
 
 const statusLabels: Record<string, string> = {
   new: "New", pending_review: "Pending Review", in_review: "In Review",
@@ -862,6 +863,65 @@ function CommentsTab({ caseId }: { caseId: number }) {
   );
 }
 
+// External Links Tab (read-only for clients)
+function ExternalLinksTab({ caseId }: { caseId: number }) {
+  const { data: links, isLoading } = trpc.externalLinks.list.useQuery({ caseId });
+
+  if (isLoading) {
+    return (
+      <div className="py-8 text-center text-slate-500">
+        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+        Loading resources...
+      </div>
+    );
+  }
+
+  if (!links || links.length === 0) {
+    return (
+      <Card className="border-slate-200">
+        <CardContent className="py-12 text-center">
+          <Link2 className="w-16 h-16 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 text-lg">No external resources yet</p>
+          <p className="text-slate-400 text-sm mt-1">Your legal team will add relevant links here</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3 pt-4">
+      <p className="text-sm text-slate-500">External resources and reference links added by your legal team:</p>
+      {links.map((link: any) => (
+        <Card key={link.id} className="border-slate-200 hover:border-indigo-300 transition-colors">
+          <CardContent className="py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+                <Link2 className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-slate-800">{link.label}</p>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-indigo-600 hover:underline truncate block"
+                >
+                  {link.url}
+                </a>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  Open
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 // Main Page
 export default function ClientCaseDetail() {
   const [, setLocation] = useLocation();
@@ -925,11 +985,13 @@ export default function ClientCaseDetail() {
             <TabsTrigger value="documents" className="gap-1.5"><FileText className="w-4 h-4" /> Documents</TabsTrigger>
             <TabsTrigger value="activity" className="gap-1.5"><Clock className="w-4 h-4" /> Activity Log</TabsTrigger>
             <TabsTrigger value="comments" className="gap-1.5"><MessageSquare className="w-4 h-4" /> Comments</TabsTrigger>
+            <TabsTrigger value="links" className="gap-1.5"><Link2 className="w-4 h-4" /> Resources</TabsTrigger>
           </TabsList>
           <TabsContent value="overview"><OverviewTab caseData={caseData} /></TabsContent>
           <TabsContent value="documents"><DocumentsTab caseId={caseId} /></TabsContent>
           <TabsContent value="activity"><ActivityLogTab caseId={caseId} /></TabsContent>
           <TabsContent value="comments"><CommentsTab caseId={caseId} /></TabsContent>
+          <TabsContent value="links"><ExternalLinksTab caseId={caseId} /></TabsContent>
         </Tabs>
       </div>
     </ClientLayout>

@@ -40,6 +40,7 @@ import EnhancedTimeline from "@/components/EnhancedTimeline";
 import SignaturePad from "@/components/SignaturePad";
 import SignaturePositioner from "@/components/SignaturePositioner";
 import CaseStageTimeline from "@/components/CaseStageTimeline";
+import { ExternalLinksManager } from "@/components/ExternalLinksManager";
 
 type TaskFilter = "all" | "pending" | "in_progress" | "completed" | "cancelled";
 type DocSort = "newest" | "oldest" | "name" | "size" | "category";
@@ -615,6 +616,7 @@ export default function CaseDetail() {
             <TabsTrigger value="documents">Documents ({documents?.length || 0})</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
             <TabsTrigger value="timeline">Timeline ({timeline?.length || 0})</TabsTrigger>
+            <TabsTrigger value="links">External Links</TabsTrigger>
           </TabsList>
 
           {/* ===== TASKS TAB ===== */}
@@ -1023,6 +1025,11 @@ export default function CaseDetail() {
                 <EnhancedTimeline timeline={timeline || []} accentColor="blue" />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ===== EXTERNAL LINKS TAB ===== */}
+          <TabsContent value="links" className="space-y-4">
+            <ExternalLinksManager caseId={caseId} />
           </TabsContent>
         </Tabs>
       </div>

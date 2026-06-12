@@ -6,12 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import {
-  FileText, ArrowLeft, Upload, Send, File, Clock, User
+  FileText, ArrowLeft, Upload, Send, File, Clock, User, Eye, Download, Link2,
 } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 import CaseStageTimeline from "@/components/CaseStageTimeline";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
 const statusLabels: Record<string, string> = {
   new: "New", pending_review: "Pending Review", in_review: "In Review",
@@ -34,6 +35,13 @@ const statusColors: Record<string, string> = {
   closed: "bg-slate-50 text-slate-700 border-slate-200",
 };
 
+function getFileIcon(fileName: string) {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) return "image";
+  if (ext === "pdf") return "pdf";
+  return "file";
+}
+
 export default function CROCaseDetail({ params }: { params: { id: string } }) {
   const caseId = parseInt(params.id);
   const [, setLocation] = useLocation();
@@ -43,9 +51,15 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
   const { data: documents } = trpc.cro.getCaseDocuments.useQuery({ caseId });
   const { data: comments } = trpc.cro.getCaseComments.useQuery({ caseId });
   const { data: timeline } = trpc.cro.getCaseTimeline.useQuery({ caseId });
+  const { data: externalLinks } = trpc.externalLinks.list.useQuery({ caseId });
 
   const [newComment, setNewComment] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  // Document preview state
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const addCommentMutation = trpc.cro.addComment.useMutation({
     onSuccess: () => {
@@ -56,8 +70,6 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
     },
     onError: (err) => toast.error(err.message),
   });
-
-  const [uploading, setUploading] = useState(false);
 
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +101,11 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handlePreviewDoc = (doc: any) => {
+    setPreviewDoc(doc);
+    setIsPreviewOpen(true);
   };
 
   if (isLoading) {
@@ -180,50 +197,99 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Tabs: Documents, Comments, Timeline */}
+        {/* Tabs: Documents, Comments, Timeline, External Links */}
         <Tabs defaultValue="documents" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex-wrap h-auto gap-1">
             <TabsTrigger value="documents">Documents ({documents?.length ?? 0})</TabsTrigger>
             <TabsTrigger value="comments">Comments ({comments?.length ?? 0})</TabsTrigger>
             <TabsTrigger value="timeline">Timeline ({timeline?.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="links">External Links ({externalLinks?.length ?? 0})</TabsTrigger>
           </TabsList>
 
           {/* Documents Tab */}
           <TabsContent value="documents" className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-serif font-semibold">Case Documents</h3>
-              <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => fileInputRef.current?.click()}>
-                <Upload className="w-4 h-4 mr-2" /> Upload Document
+              <Button
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {uploading ? "Uploading..." : "Upload Document"}
               </Button>
-              <input ref={fileInputRef} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx" className="hidden" onChange={handleFileUpload} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
             </div>
             {documents && documents.length > 0 ? (
               <div className="space-y-2">
-                {documents.map((doc: any) => (
-                  <Card key={doc.id} className="border-slate-200">
-                    <CardContent className="py-3">
-                      <div className="flex items-center gap-3">
-                        <File className="w-5 h-5 text-slate-400" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{doc.fileName}</p>
-                          <p className="text-xs text-slate-500">
-                            Uploaded by {doc.uploaderName || "Unknown"} on {new Date(doc.uploadedAt).toLocaleDateString()}
-                            {doc.requiresSignature && (
-                              <span className="ml-2 text-amber-600 font-medium">
-                                {doc.signedAt ? "Signed" : "Signature Required"}
-                              </span>
+                {documents.map((doc: any) => {
+                  const fileType = getFileIcon(doc.fileName);
+                  return (
+                    <Card key={doc.id} className="border-slate-200 hover:border-amber-300 transition-colors">
+                      <CardContent className="py-3">
+                        <div className="flex items-center gap-3">
+                          {fileType === "image" ? (
+                            <div className="w-10 h-10 rounded border border-slate-200 overflow-hidden shrink-0 bg-slate-50">
+                              <img
+                                src={doc.fileUrl}
+                                alt={doc.fileName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                              />
+                            </div>
+                          ) : fileType === "pdf" ? (
+                            <div className="w-10 h-10 rounded border border-slate-200 bg-red-50 flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5 text-red-500" />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
+                              <File className="w-5 h-5 text-slate-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{doc.fileName}</p>
+                            <p className="text-xs text-slate-500">
+                              {doc.category && <span className="capitalize mr-2">{doc.category.replace(/_/g, " ")}</span>}
+                              Uploaded by {doc.uploaderName || "Unknown"} on {new Date(doc.uploadedAt).toLocaleDateString()}
+                              {doc.requiresSignature && (
+                                <span className="ml-2 text-amber-600 font-medium">
+                                  {doc.signedAt ? "✓ Signed" : "Signature Required"}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {doc.fileUrl && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handlePreviewDoc(doc)}
+                                  title="Preview"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" asChild title="Download">
+                                  <a href={doc.fileUrl} download={doc.fileName} target="_blank" rel="noopener noreferrer">
+                                    <Download className="w-4 h-4" />
+                                  </a>
+                                </Button>
+                              </>
                             )}
-                          </p>
+                          </div>
                         </div>
-                        {doc.fileUrl && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">View</a>
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <Card className="border-slate-200">
@@ -310,8 +376,59 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
               </Card>
             )}
           </TabsContent>
+
+          {/* External Links Tab (read-only for CRO) */}
+          <TabsContent value="links" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-serif font-semibold">External Resource Links</h3>
+            </div>
+            {externalLinks && externalLinks.length > 0 ? (
+              <div className="space-y-2">
+                {externalLinks.map((link: any) => (
+                  <Card key={link.id} className="border-slate-200 hover:border-amber-300 transition-colors">
+                    <CardContent className="py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                          <Link2 className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">{link.label}</p>
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline truncate block"
+                          >
+                            {link.url}
+                          </a>
+                        </div>
+                        <Button variant="ghost" size="sm" asChild>
+                          <a href={link.url} target="_blank" rel="noopener noreferrer">
+                            Open
+                          </a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-slate-200">
+                <CardContent className="py-8 text-center text-slate-500">
+                  No external links have been added to this case yet
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Document Preview Modal */}
+      <DocumentPreviewModal
+        open={isPreviewOpen}
+        onOpenChange={(open) => { if (!open) { setIsPreviewOpen(false); setPreviewDoc(null); } }}
+        document={previewDoc}
+      />
     </CROLayout>
   );
 }

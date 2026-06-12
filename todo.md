@@ -44,3 +44,16 @@
 - [x] Update DB schema/queries to store multiple file references per inquiry (backward-compatible JSON array)
 - [x] Update CRO intake form UI for multi-file upload with drag-and-drop, previews, and remove button
 - [x] Test multi-file upload end-to-end — 65 tests pass, 0 TypeScript errors
+- [x] Audit all pages with file/document display for preview support
+- [x] Build shared FilePreview component (DocumentPreviewModal already exists)
+- [x] Integrate FilePreview into CaseDetail (admin) documents section — already present
+- [x] Integrate FilePreview into ClientDocuments (client portal) — already present
+- [x] Integrate FilePreview into CROCaseDetail documents section — added DocumentPreviewModal
+- [x] Integrate FilePreview into CROInquiries detail view — inline preview already present
+- [x] Integrate FilePreview into admin IntakeInquiries — verified consistent
+- [x] Test all preview locations end-to-end — 65 tests pass, 0 TS errors
+- [x] Audit existing externalLinks table and tRPC procedures
+- [x] Add External Links tab to admin CaseDetail (ExternalLinksManager)
+- [x] Add External Links tab to CRO CaseDetail (read-only view)
+- [x] Add Resources tab to Client CaseDetail (read-only ExternalLinksTab)
+- [x] External links visible in all three portals — admin can manage, CRO and client read-only
