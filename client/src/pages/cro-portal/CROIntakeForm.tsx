@@ -96,7 +96,7 @@ export default function CROIntakeForm() {
   const uploadFileToS3 = async (file: File): Promise<{ fileKey: string; fileUrl: string }> => {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await fetch("/api/upload-intake-file", { method: "POST", body: formData });
+    const response = await fetch("/api/files/upload-intake-file", { method: "POST", body: formData });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ error: "Upload failed" }));
       throw new Error(err.error || "Upload failed");

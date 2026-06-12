@@ -278,7 +278,7 @@ export default function Cases() {
       formData.append("file", file);
       formData.append("caseId", uploadCaseId.toString());
       formData.append("category", uploadCategory);
-      const response = await fetch("/api/upload-document", { method: "POST", body: formData });
+      const response = await fetch("/api/files/upload-document", { method: "POST", body: formData });
       if (!response.ok) throw new Error("Upload failed");
       toast.success("Document uploaded successfully");
       setUploadCaseId(null);

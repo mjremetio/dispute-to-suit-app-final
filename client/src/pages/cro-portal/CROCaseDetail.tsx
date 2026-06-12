@@ -75,7 +75,7 @@ export default function CROCaseDetail({ params }: { params: { id: string } }) {
         formData.append("file", file);
         formData.append("caseId", caseId.toString());
         formData.append("category", "cro_upload");
-        const response = await fetch("/api/upload-document", { method: "POST", body: formData });
+        const response = await fetch("/api/files/upload-document", { method: "POST", body: formData });
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.error || "Upload failed");

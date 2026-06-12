@@ -548,7 +548,7 @@ function DocumentsTab({ caseId }: { caseId: number }) {
         formData.append("file", file);
         formData.append("caseId", caseId.toString());
         formData.append("category", "client_upload");
-        const response = await fetch("/api/upload-document", { method: "POST", body: formData });
+        const response = await fetch("/api/files/upload-document", { method: "POST", body: formData });
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.error || "Upload failed");

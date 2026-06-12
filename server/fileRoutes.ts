@@ -31,9 +31,9 @@ async function authenticateUser(req: Request, res: Response, next: Function) {
   }
 }
 
-// POST /api/upload-document - Upload a file to S3 and save metadata
+// POST /api/files/upload-document - Upload a file to S3 and save metadata
 fileRouter.post(
-  "/api/upload-document",
+  "/upload-document",
   authenticateUser,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -106,9 +106,9 @@ fileRouter.post(
   }
 );
 
-// POST /api/upload-intake-file - Upload a file to S3 for intake inquiries (no caseId required)
+// POST /api/files/upload-intake-file - Upload a file to S3 for intake inquiries (no caseId required)
 fileRouter.post(
-  "/api/upload-intake-file",
+  "/upload-intake-file",
   authenticateUser,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -144,7 +144,7 @@ fileRouter.post(
 // Supports two modes:
 //   ?docId=123  - Look up document from DB, try stored fileUrl first, then storageGet
 //   ?key=...    - Use fileKey directly with storageGet
-fileRouter.get("/api/files/proxy", async (req: Request, res: Response) => {
+fileRouter.get("/proxy", async (req: Request, res: Response) => {
   try {
     const fileKey = req.query.key as string;
     const docId = req.query.docId as string;
@@ -222,7 +222,7 @@ fileRouter.get("/api/files/proxy", async (req: Request, res: Response) => {
 });
 
 // GET /api/files/download-url - Get a fresh presigned download URL for a document
-fileRouter.get("/api/files/download-url", authenticateUser, async (req: Request, res: Response) => {
+fileRouter.get("/download-url", authenticateUser, async (req: Request, res: Response) => {
   try {
     const docId = req.query.docId as string;
     if (!docId) {

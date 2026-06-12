@@ -272,7 +272,7 @@ export default function CaseDetail() {
     formData.append("category", uploadCategory);
 
     try {
-      const response = await fetch("/api/upload-document", {
+      const response = await fetch("/api/files/upload-document", {
         method: "POST",
         body: formData,
       });

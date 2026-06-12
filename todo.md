@@ -36,3 +36,5 @@
 - [x] Update OpenAPI spec with new write endpoints
 - [x] Test all new endpoints end-to-end — 42/42 passed
 - [x] Fix deployment failure: openapi.yaml not found in production build (ENOENT)
+- [x] Audit document upload flow (file route, S3, frontend component, server logs)
+- [x] Fix document upload failure for credit report screenshots — route path mismatch fixed
