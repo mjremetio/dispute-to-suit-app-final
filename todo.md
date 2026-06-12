@@ -39,3 +39,8 @@
 - [x] Audit document upload flow (file route, S3, frontend component, server logs)
 - [x] Fix document upload failure for credit report screenshots — route path mismatch fixed
 - [x] Audit and fix in-app notifications system — fixed broken notification link routing (bare /cases/:id → role-aware portal route)
+- [x] Audit intake inquiry upload (server route, schema, frontend)
+- [x] Update server upload handler to accept multiple files for intake inquiries
+- [x] Update DB schema/queries to store multiple file references per inquiry (backward-compatible JSON array)
+- [x] Update CRO intake form UI for multi-file upload with drag-and-drop, previews, and remove button
+- [x] Test multi-file upload end-to-end — 65 tests pass, 0 TypeScript errors

@@ -1602,7 +1602,7 @@ export const appRouter = router({
         clientState: z.string().optional(),
         clientZipCode: z.string().optional(),
         supportingDocuments: z.array(z.string()).optional(), // S3 URLs
-        annualCreditReportScreenshot: z.string().optional(), // S3 URL for proof of upload
+        annualCreditReportScreenshot: z.union([z.string(), z.array(z.string())]).optional(), // S3 URL(s) for proof of upload (single string or array)
       }))
       .mutation(async ({ input, ctx }) => {
         const inquiryId = await createIntakeInquiry({
@@ -1618,7 +1618,11 @@ export const appRouter = router({
           clientState: input.clientState || null,
           clientZipCode: input.clientZipCode || null,
           supportingDocuments: input.supportingDocuments ? JSON.stringify(input.supportingDocuments) : null,
-          annualCreditReportScreenshot: input.annualCreditReportScreenshot || null,
+          annualCreditReportScreenshot: input.annualCreditReportScreenshot
+            ? (Array.isArray(input.annualCreditReportScreenshot)
+              ? JSON.stringify(input.annualCreditReportScreenshot)
+              : input.annualCreditReportScreenshot)
+            : null,
           status: "pending",
         });
         await createActivityLog({

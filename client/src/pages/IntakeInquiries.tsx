@@ -543,14 +543,24 @@ export default function IntakeInquiries() {
 
                   return (
                     <>
-                      {selectedInquiry.annualCreditReportScreenshot && (
-                        <div>
-                          <p className="text-sm text-slate-500 mb-2">AnnualCreditReport.com Proof of Upload</p>
-                          <div className="space-y-3">
-                            {renderDocPreview(selectedInquiry.annualCreditReportScreenshot, -1)}
+                      {selectedInquiry.annualCreditReportScreenshot && (() => {
+                        // Support both legacy single URL and new JSON array format
+                        let proofUrls: string[] = [];
+                        try {
+                          const parsed = JSON.parse(selectedInquiry.annualCreditReportScreenshot);
+                          proofUrls = Array.isArray(parsed) ? parsed : [selectedInquiry.annualCreditReportScreenshot];
+                        } catch {
+                          proofUrls = [selectedInquiry.annualCreditReportScreenshot];
+                        }
+                        return (
+                          <div>
+                            <p className="text-sm text-slate-500 mb-2">AnnualCreditReport.com Proof of Upload ({proofUrls.length} screenshot{proofUrls.length !== 1 ? 's' : ''})</p>
+                            <div className="space-y-3">
+                              {proofUrls.map((url: string, idx: number) => renderDocPreview(url, idx))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                       {selectedInquiry.supportingDocuments && (() => {
                         const docs: string[] = JSON.parse(selectedInquiry.supportingDocuments);
                         return docs.length > 0 ? (
