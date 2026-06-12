@@ -38,3 +38,4 @@
 - [x] Fix deployment failure: openapi.yaml not found in production build (ENOENT)
 - [x] Audit document upload flow (file route, S3, frontend component, server logs)
 - [x] Fix document upload failure for credit report screenshots — route path mismatch fixed
+- [x] Audit and fix in-app notifications system — fixed broken notification link routing (bare /cases/:id → role-aware portal route)

@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -9,11 +9,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
+  const { user } = useAuth();
 
   const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(undefined, {
     refetchInterval: 30000, // Poll every 30 seconds
@@ -38,12 +40,32 @@ export function NotificationBell() {
     },
   });
 
+  // Resolve the correct route prefix based on the user's role
+  const resolveLink = (rawLink: string | null): string | null => {
+    if (!rawLink) return null;
+    // If the link already has a portal prefix, use it as-is
+    if (rawLink.startsWith("/admin/") || rawLink.startsWith("/cro-portal/") || rawLink.startsWith("/client-portal/")) {
+      return rawLink;
+    }
+    // Map bare /cases/:id to the correct portal route
+    const caseMatch = rawLink.match(/^\/cases\/(\d+)/);
+    if (caseMatch) {
+      const role = user?.role;
+      if (role === "cro") return `/cro-portal/cases/${caseMatch[1]}`;
+      if (role === "client") return `/client-portal/cases/${caseMatch[1]}`;
+      // admin, paralegal, legal, partner all use admin portal
+      return `/admin/cases/${caseMatch[1]}`;
+    }
+    return rawLink;
+  };
+
   const handleNotificationClick = (notification: { id: number; link: string | null; isRead: boolean }) => {
     if (!notification.isRead) {
       markReadMutation.mutate({ id: notification.id });
     }
-    if (notification.link) {
-      setLocation(notification.link);
+    const resolvedLink = resolveLink(notification.link);
+    if (resolvedLink) {
+      setLocation(resolvedLink);
       setOpen(false);
     }
   };
