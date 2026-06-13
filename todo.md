@@ -57,3 +57,8 @@
 - [x] Add External Links tab to CRO CaseDetail (read-only view)
 - [x] Add Resources tab to Client CaseDetail (read-only ExternalLinksTab)
 - [x] External links visible in all three portals — admin can manage, CRO and client read-only
+- [x] Fix getCaseNotificationRecipients to include client portal user ID
+- [x] Add NotificationBell to ClientLayout header
+- [x] Add cases.notifyClient tRPC procedure (send in-app + email notification to client from a case)
+- [x] Add Notify Client button to admin CaseDetail page
+- [x] Write vitest tests for notify client fixes

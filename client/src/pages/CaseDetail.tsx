@@ -29,7 +29,7 @@ import {
   ArrowLeft, Clock, User, FileText, CheckCircle2, Plus, Upload, Eye,
   Loader2, Trash2, Calendar, AlertTriangle, Filter, Pencil, Download,
   Image, File, HardDrive, Tag, ArrowUpDown, Search, PenTool, ShieldCheck,
-  UserPlus, UserCheck, Copy,
+  UserPlus, UserCheck, Copy, Bell,
 } from "lucide-react";
 import { format, isPast, isToday, isTomorrow, formatDistanceToNow } from "date-fns";
 import { useState, useMemo, useEffect } from "react";
@@ -90,6 +90,10 @@ export default function CaseDetail() {
   // Google Drive link edit state
   const [isEditingDriveLink, setIsEditingDriveLink] = useState(false);
   const [driveLinkInput, setDriveLinkInput] = useState("");
+
+  // Notify client dialog state
+  const [isNotifyClientOpen, setIsNotifyClientOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
 
   // New task form state
   const [newTask, setNewTask] = useState({
@@ -220,6 +224,16 @@ export default function CaseDetail() {
       }
     },
     onError: (error) => toast.error(error.message || "Failed to create portal account"),
+  });
+
+  const notifyClientMutation = trpc.cases.notifyClient.useMutation({
+    onSuccess: () => {
+      toast.success("Client notified successfully");
+      setIsNotifyClientOpen(false);
+      setNotifyMessage("");
+      refetchCase();
+    },
+    onError: (error) => toast.error(error.message || "Failed to notify client"),
   });
 
   const handleOpenCreateAccount = () => {
@@ -575,6 +589,21 @@ export default function CaseDetail() {
                       </Button>
                     </div>
                   )}
+                </div>
+              )}
+              {/* Notify Client button - visible when client has portal access */}
+              {caseData.clientId && clientInfo?.portalAccess && (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Client Notification</h4>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                    onClick={() => setIsNotifyClientOpen(true)}
+                  >
+                    <Bell className="w-3.5 h-3.5 mr-1" />
+                    Notify Client
+                  </Button>
                 </div>
               )}
               {caseData.settlementPaidOutDate && (
@@ -1429,6 +1458,51 @@ export default function CaseDetail() {
           <div className="flex justify-end pt-2 border-t">
             <Button onClick={() => setCredentialsDialog({ open: false, username: "", password: "", clientName: "" })}>
               Done
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notify Client Dialog */}
+      <Dialog open={isNotifyClientOpen} onOpenChange={setIsNotifyClientOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-indigo-500" />
+              <DialogTitle>Notify Client</DialogTitle>
+            </div>
+            <DialogDescription>
+              Send an in-app notification and email to{" "}
+              {clientInfo ? `${clientInfo.firstName} ${clientInfo.lastName}` : "the client"} about this case.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="notifyMessage">Message *</Label>
+              <Textarea
+                id="notifyMessage"
+                placeholder="e.g. Your case has been reviewed and is now ready for the next step..."
+                value={notifyMessage}
+                onChange={(e) => setNotifyMessage(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2 border-t">
+            <Button variant="outline" className="flex-1" onClick={() => setIsNotifyClientOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+              disabled={!notifyMessage.trim() || notifyClientMutation.isPending}
+              onClick={() => notifyClientMutation.mutate({ caseId, message: notifyMessage })}
+            >
+              {notifyClientMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
+              ) : (
+                <><Bell className="w-4 h-4 mr-2" /> Send Notification</>
+              )}
             </Button>
           </div>
         </DialogContent>

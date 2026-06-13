@@ -87,6 +87,7 @@ import {
   getCasesByClientId,
   getCroStats,
   getSignedAOCByClientId,
+  createNotification,
 } from "./db";
 
 import {
@@ -98,6 +99,7 @@ import {
   sendCaseStatusChangeCroNotification,
   sendClientCredentialsEmail,
   sendAOCSignatureRequiredEmail,
+  sendCaseUpdateClientEmail,
 } from "./email";
 import { storagePut, storageGet } from "./storage";
 import { notifyOwner } from "./_core/notification";
@@ -619,6 +621,60 @@ export const appRouter = router({
         });
 
         return { success: true, affected: result.affected };
+      }),
+
+    // Notify client about a case update (admin/paralegal-triggered)
+    notifyClient: adminParalegalProcedure
+      .input(z.object({
+        caseId: z.number(),
+        message: z.string().min(1, "Message is required"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const caseData = await getCaseById(input.caseId);
+        if (!caseData) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Case not found" });
+        }
+        if (!caseData.clientId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "No client linked to this case" });
+        }
+        const clientRecord = await getClientById(caseData.clientId);
+        if (!clientRecord) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Client record not found" });
+        }
+
+        // Create in-app notification if client has portal access
+        if (clientRecord.portalUserId) {
+          await createNotification({
+            userId: clientRecord.portalUserId,
+            type: "case_updated",
+            title: `Update on Your Case: ${caseData.title}`,
+            message: input.message,
+            link: `/client-portal/cases/${input.caseId}`,
+            isRead: false,
+          });
+        }
+
+        // Send email notification if client has an email address
+        if (clientRecord.email) {
+          const clientName = `${clientRecord.firstName} ${clientRecord.lastName}`;
+          sendCaseUpdateClientEmail(
+            clientRecord.email,
+            clientName,
+            caseData.title,
+            input.caseId,
+            input.message,
+          ).catch((err) => console.error("[Email] Failed to send case update to client:", err));
+        }
+
+        // Log activity
+        await createActivityLog({
+          userId: ctx.user.id,
+          caseId: input.caseId,
+          action: "client_notified",
+          description: `Client notified for case #${input.caseId}: ${input.message.substring(0, 100)}`,
+        });
+
+        return { success: true };
       }),
   }),
 

@@ -25,6 +25,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { NotificationBell } from "./NotificationBell";
 
 const clientMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/client-portal" },
@@ -85,9 +86,10 @@ export default function ClientLayout({
       <SidebarInset>
         <header className="h-16 flex items-center gap-2 px-4 border-b">
           <SidebarTrigger className="md:hidden" />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded">Client Portal</span>
           </div>
+          <NotificationBell />
         </header>
         <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">{children}</div>
       </SidebarInset>

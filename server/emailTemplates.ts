@@ -711,3 +711,36 @@ export function getAOCSignatureRequiredEmail(data: {
     html: getEmailTemplate(content),
   };
 }
+
+/**
+ * Email template for notifying a client of a case update (admin-triggered)
+ */
+export function getCaseUpdateClientEmail(data: {
+  clientName: string;
+  caseTitle: string;
+  caseId: number;
+  message: string;
+  appUrl: string;
+}): { subject: string; html: string } {
+  const portalUrl = `${data.appUrl}/client-portal/cases/${data.caseId}`;
+  const content = `
+    <h1>Update on Your Case</h1>
+    <p>Dear ${data.clientName},</p>
+
+    <div class="info-box">
+      <p style="margin: 0;">There is a new update on your case: <strong>${data.caseTitle}</strong></p>
+    </div>
+
+    <p>${data.message}</p>
+
+    <p style="margin-top: 30px;">
+      <a href="${portalUrl}" class="button">View Your Case</a>
+    </p>
+
+    <p style="margin-top: 30px;">Best regards,<br><strong>The ${BRAND_NAME} Paralegal Team</strong></p>
+  `;
+  return {
+    subject: `Dispute2Suit - Case Update: ${data.caseTitle}`,
+    html: getEmailTemplate(content),
+  };
+}

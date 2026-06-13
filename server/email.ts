@@ -14,6 +14,7 @@ import {
   getCaseStatusChangeCroNotificationEmail,
   getClientCredentialsEmail,
   getAOCSignatureRequiredEmail,
+  getCaseUpdateClientEmail,
 } from "./emailTemplates";
 
 /**
@@ -162,4 +163,22 @@ export async function sendClientCredentialsEmail(email: string, name: string, te
 export async function sendAOCSignatureRequiredEmail(email: string, clientName: string): Promise<boolean> {
   const template = getAOCSignatureRequiredEmail({ clientName });
   return sendEmail({ to: email, ...template });
+}
+
+/** Send a case update notification email directly to the client */
+export async function sendCaseUpdateClientEmail(
+  clientEmail: string,
+  clientName: string,
+  caseTitle: string,
+  caseId: number,
+  message: string,
+): Promise<boolean> {
+  const template = getCaseUpdateClientEmail({
+    clientName,
+    caseTitle,
+    caseId,
+    message,
+    appUrl: ENV.appUrl,
+  });
+  return sendEmail({ to: clientEmail, ...template });
 }

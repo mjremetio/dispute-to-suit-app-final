@@ -1129,7 +1129,7 @@ export async function markAllNotificationsRead(userId: number) {
 }
 
 /**
- * Notify all CROs and paralegals/admins associated with a case about a change.
+ * Notify all CROs, paralegals/admins, and the linked client portal user about a case change.
  * Excludes the user who triggered the change.
  */
 export async function getCaseNotificationRecipients(caseId: number, excludeUserId: number): Promise<number[]> {
@@ -1147,6 +1147,14 @@ export async function getCaseNotificationRecipients(caseId: number, excludeUserI
   if (caseData.assignedCroId) recipientIds.add(caseData.assignedCroId);
   // Add case creator
   if (caseData.createdBy) recipientIds.add(caseData.createdBy);
+
+  // Add the client's portal user if they have portal access
+  if (caseData.clientId) {
+    const clientRecord = await getClientById(caseData.clientId);
+    if (clientRecord?.portalUserId) {
+      recipientIds.add(clientRecord.portalUserId);
+    }
+  }
 
   // Add all admin and paralegal users
   const teamUsers = await db.select({ id: users.id }).from(users)
