@@ -68,3 +68,8 @@
 - [x] Register /client-portal/settings route in App.tsx
 - [x] Add clients.resendCredentials tRPC procedure
 - [x] Add Resend Credentials button to admin Clients page dropdown
+- [x] Add settlementAmount decimal column to cases schema and DB
+- [x] Add settlementAmount to cases.update tRPC procedure
+- [x] Display and inline-edit settlementAmount in admin CaseDetail
+- [x] Show settlementAmount in client portal ClientCaseDetail
+- [x] Log settlementAmount change in activity log

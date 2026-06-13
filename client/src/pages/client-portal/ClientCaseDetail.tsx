@@ -480,6 +480,19 @@ function OverviewTab({ caseData }: { caseData: any }) {
             <div><p className="text-slate-500">Due Date</p><p className="font-medium">{caseData.dueDate ? new Date(caseData.dueDate).toLocaleDateString() : "Not set"}</p></div>
             <div><p className="text-slate-500">Type</p><p className="font-medium">{caseData.caseType || "Not specified"}</p></div>
           </div>
+          {caseData.settlementAmount && (
+            <div className="mt-4 flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                <span className="text-green-700 font-bold text-sm">$</span>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-green-600 uppercase tracking-wide">Settlement Amount</p>
+                <p className="text-lg font-bold text-green-800">
+                  {Number(caseData.settlementAmount).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       <Card className="border-slate-200 shadow-sm">

@@ -105,6 +105,7 @@ export const cases = mysqlTable("cases", {
   caseType: varchar("caseType", { length: 100 }), // e.g., "FCRA Violation", "Credit Dispute"
   estimatedValue: decimal("estimatedValue", { precision: 10, scale: 2 }),
   actualValue: decimal("actualValue", { precision: 10, scale: 2 }),
+  settlementAmount: decimal("settlementAmount", { precision: 10, scale: 2 }),
   dueDate: timestamp("dueDate"),
   completedAt: timestamp("completedAt"),
   closedAt: timestamp("closedAt"),

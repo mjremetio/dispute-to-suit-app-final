@@ -315,6 +315,7 @@ export const appRouter = router({
         priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
         caseType: z.string().optional(),
         estimatedValue: z.number().optional(),
+        settlementAmount: z.number().nullable().optional(),
         clientId: z.number().nullable().optional(),
         assignedTo: z.number().optional(),
         assignedCroId: z.number().nullable().optional(),
@@ -324,10 +325,13 @@ export const appRouter = router({
         googleDriveLink: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const { id, estimatedValue, ...rest } = input;
+        const { id, estimatedValue, settlementAmount, ...rest } = input;
         const updates: any = { ...rest };
         if (estimatedValue !== undefined) {
           updates.estimatedValue = estimatedValue.toString();
+        }
+        if (settlementAmount !== undefined) {
+          updates.settlementAmount = settlementAmount !== null ? settlementAmount.toString() : null;
         }
         const caseData = await getCaseById(id);
 
@@ -402,12 +406,26 @@ export const appRouter = router({
           }
         }
 
+        // Build human-readable change summary for activity log
+        const logParts: string[] = [];
+        if (updates.status && updates.status !== caseData.status) {
+          const statusLabels2: Record<string, string> = { new: "New", pending_review: "Pending Review", in_review: "In Review", more_info_needed: "More Info Needed", ready_for_attorney: "Ready for Attorney", sent_to_attorney: "Sent to Attorney", accepted_by_attorney: "Accepted by Attorney", rejected: "Rejected", settled: "Settled", settlement_paid_out: "Settlement Paid Out", closed: "Closed" };
+          logParts.push(`status: ${statusLabels2[caseData.status] || caseData.status} → ${statusLabels2[updates.status] || updates.status}`);
+        }
+        if (updates.priority && updates.priority !== caseData.priority) logParts.push(`priority: ${caseData.priority} → ${updates.priority}`);
+        if (updates.settlementAmount !== undefined) {
+          const oldAmt = caseData.settlementAmount ? `$${Number(caseData.settlementAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "none";
+          const newAmt = updates.settlementAmount !== null ? `$${Number(updates.settlementAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "cleared";
+          logParts.push(`settlement amount: ${oldAmt} → ${newAmt}`);
+        }
+        const logSummary = logParts.length > 0 ? logParts.join("; ") : "details updated";
+
         // Log activity
         await createActivityLog({
           userId: ctx.user.id,
           caseId: id,
           action: "case_updated",
-          description: `Case updated: ${caseData.title}`,
+          description: `Case updated (${logSummary}): ${caseData.title}`,
           metadata: JSON.stringify(updates),
         });
 
@@ -416,6 +434,10 @@ export const appRouter = router({
         if (updates.status) updateParts.push(`status changed to ${updates.status}`);
         if (updates.priority) updateParts.push(`priority changed to ${updates.priority}`);
         if (updates.assignedTo) updateParts.push(`assigned to a new team member`);
+        if (updates.settlementAmount !== undefined) {
+          const amt = updates.settlementAmount !== null ? `$${Number(updates.settlementAmount).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "cleared";
+          updateParts.push(`settlement amount set to ${amt}`);
+        }
         const updateSummary = updateParts.length > 0 ? updateParts.join(", ") : "details updated";
         notifyCaseChangeToTeam({
           caseId: id,

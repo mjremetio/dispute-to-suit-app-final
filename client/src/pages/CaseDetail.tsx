@@ -91,6 +91,10 @@ export default function CaseDetail() {
   const [isEditingDriveLink, setIsEditingDriveLink] = useState(false);
   const [driveLinkInput, setDriveLinkInput] = useState("");
 
+  // Settlement amount inline edit state
+  const [isEditingSettlement, setIsEditingSettlement] = useState(false);
+  const [settlementInput, setSettlementInput] = useState("");
+
   // Notify client dialog state
   const [isNotifyClientOpen, setIsNotifyClientOpen] = useState(false);
   const [notifyMessage, setNotifyMessage] = useState("");
@@ -606,6 +610,73 @@ export default function CaseDetail() {
                   </Button>
                 </div>
               )}
+              {/* Settlement Amount - always shown with inline edit */}
+              <div>
+                <h4 className="text-sm font-medium mb-1 flex items-center gap-1">
+                  Settlement Amount
+                </h4>
+                {isEditingSettlement ? (
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={settlementInput}
+                        onChange={(e) => setSettlementInput(e.target.value)}
+                        className="h-7 text-xs pl-6 w-36"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const val = settlementInput.trim() === "" ? null : parseFloat(settlementInput);
+                            if (val !== null && isNaN(val)) return;
+                            updateCaseMutation.mutate({ id: caseId, settlementAmount: val });
+                            setIsEditingSettlement(false);
+                          }
+                          if (e.key === "Escape") setIsEditingSettlement(false);
+                        }}
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      className="h-7 text-xs px-2"
+                      onClick={() => {
+                        const val = settlementInput.trim() === "" ? null : parseFloat(settlementInput);
+                        if (val !== null && isNaN(val)) return;
+                        updateCaseMutation.mutate({ id: caseId, settlementAmount: val });
+                        setIsEditingSettlement(false);
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setIsEditingSettlement(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-green-700">
+                      {caseData.settlementAmount
+                        ? `$${Number(caseData.settlementAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : <span className="text-muted-foreground font-normal">Not set</span>}
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 text-xs px-1.5 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setSettlementInput(caseData.settlementAmount ? String(Number(caseData.settlementAmount)) : "");
+                        setIsEditingSettlement(true);
+                      }}
+                    >
+                      <Pencil className="w-3 h-3 mr-0.5" />
+                      Edit
+                    </Button>
+                  </div>
+                )}
+              </div>
               {caseData.settlementPaidOutDate && (
                 <div>
                   <h4 className="text-sm font-medium mb-1">Settlement Paid Out Date</h4>
