@@ -73,3 +73,11 @@
 - [x] Display and inline-edit settlementAmount in admin CaseDetail
 - [x] Show settlementAmount in client portal ClientCaseDetail
 - [x] Log settlementAmount change in activity log
+- [x] Add tourSeenCro and tourSeenClient boolean columns to users schema + DB migration
+- [x] Add system.getTourStatus and system.markTourSeen tRPC procedures
+- [x] Build reusable TourOverlay component (spotlight + tooltip card, step navigation)
+- [x] Implement CRO portal tour steps (Dashboard, My Clients, My Cases, File Intake, My Inquiries)
+- [x] Integrate CRO tour into CROLayout (auto-trigger on first login + Help button in sidebar)
+- [x] Implement Client Portal tour steps (Dashboard, My Cases, Documents, Comments, Activity, Settings)
+- [x] Integrate Client tour into ClientLayout (auto-trigger on first login + Help button in sidebar)
+- [x] Write vitest tests for tour procedures

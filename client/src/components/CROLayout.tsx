@@ -19,20 +19,72 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, FilePlus, ClipboardList } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FileText, FilePlus, ClipboardList, HelpCircle } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { NotificationBell } from "./NotificationBell";
+import { TourOverlay, type TourStep } from "./TourOverlay";
+import { trpc } from "@/lib/trpc";
 
 const croMenuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/cro-portal" },
-  { icon: Users, label: "My Clients", path: "/cro-portal/clients" },
-  { icon: FileText, label: "My Cases", path: "/cro-portal/cases" },
-  { icon: FilePlus, label: "File Intake Inquiry", path: "/cro-portal/intake" },
-  { icon: ClipboardList, label: "My Inquiries", path: "/cro-portal/inquiries" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/cro-portal", tourId: "cro-nav-dashboard" },
+  { icon: Users, label: "My Clients", path: "/cro-portal/clients", tourId: "cro-nav-clients" },
+  { icon: FileText, label: "My Cases", path: "/cro-portal/cases", tourId: "cro-nav-cases" },
+  { icon: FilePlus, label: "File Intake Inquiry", path: "/cro-portal/intake", tourId: "cro-nav-intake" },
+  { icon: ClipboardList, label: "My Inquiries", path: "/cro-portal/inquiries", tourId: "cro-nav-inquiries" },
+];
+
+const CRO_TOUR_STEPS: TourStep[] = [
+  {
+    title: "Welcome to the CRO Portal! 🎉",
+    description: "This quick tour will walk you through everything you need to know to get started. You can replay it anytime by clicking the Help (?) button in the sidebar.",
+    emoji: "🚀",
+    placement: "center",
+  },
+  {
+    target: "[data-tour='cro-nav-dashboard']",
+    title: "Your Dashboard",
+    description: "Your home base. See an overview of your active clients, open cases, and recent intake inquiries all in one place.",
+    emoji: "📊",
+    placement: "right",
+  },
+  {
+    target: "[data-tour='cro-nav-clients']",
+    title: "My Clients",
+    description: "View and manage all the clients you've enrolled. You can see their contact details, linked cases, and portal account status here.",
+    emoji: "👥",
+    placement: "right",
+  },
+  {
+    target: "[data-tour='cro-nav-cases']",
+    title: "My Cases",
+    description: "Track every case you're responsible for — from intake all the way to settlement. Click any case to view documents, tasks, and comments.",
+    emoji: "📁",
+    placement: "right",
+  },
+  {
+    target: "[data-tour='cro-nav-intake']",
+    title: "File Intake Inquiry",
+    description: "Submit a new client inquiry here. Fill in the client's information and credit dispute details to kick off the review process.",
+    emoji: "📝",
+    placement: "right",
+  },
+  {
+    target: "[data-tour='cro-nav-inquiries']",
+    title: "My Inquiries",
+    description: "Review all intake inquiries you've submitted. Track their status — pending, accepted, or rejected — and notify clients once accepted.",
+    emoji: "📋",
+    placement: "right",
+  },
+  {
+    title: "You're All Set! 🌟",
+    description: "That's the full CRO Portal tour. Start by filing an intake inquiry for your first client, or check your dashboard for pending items. Good luck!",
+    emoji: "🎯",
+    placement: "center",
+  },
 ];
 
 const SIDEBAR_WIDTH_KEY = "cro-sidebar-width";
@@ -55,6 +107,26 @@ export default function CROLayout({
   }, [sidebarWidth]);
 
   const { user, loading } = useAuth();
+  const [showTour, setShowTour] = useState(false);
+
+  const { data: tourStatus } = trpc.system.getTourStatus.useQuery(undefined, {
+    enabled: !!user,
+  });
+  const markTourSeen = trpc.system.markTourSeen.useMutation();
+
+  // Auto-trigger on first login (when tourSeenCro is false)
+  useEffect(() => {
+    if (tourStatus && !tourStatus.tourSeenCro) {
+      // Small delay so the layout renders first
+      const t = setTimeout(() => setShowTour(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [tourStatus]);
+
+  const handleTourFinish = () => {
+    setShowTour(false);
+    markTourSeen.mutate({ portal: "cro" });
+  };
 
   if (loading) {
     return <DashboardLayoutSkeleton />;
@@ -79,32 +151,47 @@ export default function CROLayout({
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <CROLayoutContent setSidebarWidth={setSidebarWidth} />
-      <SidebarInset>
-        <header className="h-16 flex items-center justify-between gap-2 px-4 border-b">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden" />
-            <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded">CRO Portal</span>
-          </div>
-          <NotificationBell />
-        </header>
-        <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": `${sidebarWidth}px`,
+          } as CSSProperties
+        }
+      >
+        <CROLayoutContent
+          setSidebarWidth={setSidebarWidth}
+          onStartTour={() => setShowTour(true)}
+        />
+        <SidebarInset>
+          <header className="h-16 flex items-center justify-between gap-2 px-4 border-b">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="md:hidden" />
+              <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded">CRO Portal</span>
+            </div>
+            <NotificationBell />
+          </header>
+          <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
+
+      {showTour && (
+        <TourOverlay
+          steps={CRO_TOUR_STEPS}
+          onFinish={handleTourFinish}
+          onSkip={handleTourFinish}
+        />
+      )}
+    </>
   );
 }
 
 function CROLayoutContent({
   setSidebarWidth,
+  onStartTour,
 }: {
   setSidebarWidth: (width: number) => void;
+  onStartTour: () => void;
 }) {
   const auth = useAuth();
   const user = auth.user;
@@ -131,7 +218,6 @@ function CROLayoutContent({
       }
     };
     const handleMouseUp = () => setIsResizing(false);
-
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
@@ -178,6 +264,7 @@ function CROLayoutContent({
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
                       className="h-10 transition-all font-normal"
+                      data-tour={item.tourId}
                     >
                       <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
                       <span>{item.label}</span>
@@ -188,7 +275,18 @@ function CROLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="p-3 space-y-2">
+            {/* Help / Tour button */}
+            <SidebarMenuButton
+              onClick={onStartTour}
+              tooltip="Take a tour"
+              className="h-9 transition-all font-normal text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700"
+              data-tour="cro-help-btn"
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span>Help &amp; Tour</span>
+            </SidebarMenuButton>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">

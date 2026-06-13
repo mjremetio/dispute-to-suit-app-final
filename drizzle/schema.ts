@@ -17,6 +17,8 @@ export const users = mysqlTable("users", {
   trialExpirationSent: boolean("trialExpirationSent").default(false),
   isActive: boolean("isActive").default(true).notNull(),
   mustChangePassword: boolean("mustChangePassword").default(false).notNull(),
+  tourSeenCro: boolean("tourSeenCro").default(false).notNull(),
+  tourSeenClient: boolean("tourSeenClient").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
