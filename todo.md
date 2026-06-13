@@ -62,3 +62,9 @@
 - [x] Add cases.notifyClient tRPC procedure (send in-app + email notification to client from a case)
 - [x] Add Notify Client button to admin CaseDetail page
 - [x] Write vitest tests for notify client fixes
+- [x] Add welcome in-app notification when portal account is created (manual + auto paths)
+- [x] Create ClientAccountSettings page with change-password form and profile display
+- [x] Add Account Settings nav item to client sidebar
+- [x] Register /client-portal/settings route in App.tsx
+- [x] Add clients.resendCredentials tRPC procedure
+- [x] Add Resend Credentials button to admin Clients page dropdown

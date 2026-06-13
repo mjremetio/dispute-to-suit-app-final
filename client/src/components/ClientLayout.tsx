@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, FileText, MessageSquare, Clock, Briefcase } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, FileText, MessageSquare, Clock, Briefcase, Settings } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -33,6 +33,7 @@ const clientMenuItems = [
   { icon: FileText, label: "Documents", path: "/client-portal/documents" },
   { icon: MessageSquare, label: "Comments", path: "/client-portal/comments" },
   { icon: Clock, label: "Activity Log", path: "/client-portal/timeline" },
+  { icon: Settings, label: "Account Settings", path: "/client-portal/settings" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "client-sidebar-width";

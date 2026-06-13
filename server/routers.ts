@@ -206,6 +206,16 @@ export const appRouter = router({
                   action: "client_portal_account_created",
                   description: `Portal account auto-created for client: ${clientName} (${clientRecord.email})`,
                 });
+
+                // Send welcome in-app notification to the new portal user
+                await createNotification({
+                  userId: newClientUser.id,
+                  type: "case_updated",
+                  title: "Welcome to Your Client Portal!",
+                  message: `Hi ${clientRecord.firstName}, your Dispute2Suit portal account is ready. You can view your cases, upload documents, and track your progress here.`,
+                  link: "/client-portal",
+                  isRead: false,
+                });
               }
             }
           }
@@ -963,6 +973,16 @@ export const appRouter = router({
           console.error("[Email] Failed to send client credentials:", err);
         });
 
+        // Send welcome in-app notification to the new portal user
+        await createNotification({
+          userId: newUser.id,
+          type: "case_updated",
+          title: "Welcome to Your Client Portal!",
+          message: `Hi ${client.firstName}, your Dispute2Suit portal account is ready. You can view your cases, upload documents, and track your progress here.`,
+          link: "/client-portal",
+          isRead: false,
+        });
+
         // Send AOC signature required email if client hasn't signed the AOC yet
         const signedAOC = await getSignedAOCByClientId(input.clientId);
         if (!signedAOC) {
@@ -980,6 +1000,37 @@ export const appRouter = router({
             clientName: `${client.firstName} ${client.lastName}`,
           },
         };
+      }),
+
+    // Resend portal credentials email to client (generates a new temp password)
+    resendCredentials: adminParalegalProcedure
+      .input(z.object({ clientId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const client = await getClientById(input.clientId);
+        if (!client) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
+        }
+        if (!client.portalUserId || !client.email) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Client does not have a portal account" });
+        }
+        // Generate a new temp password and reset mustChangePassword
+        const newTempPassword = nanoid(12);
+        const hashedPassword = await bcrypt.hash(newTempPassword, 10);
+        await updateUser(client.portalUserId, {
+          passwordHash: hashedPassword,
+          mustChangePassword: true,
+        });
+        const clientName = `${client.firstName} ${client.lastName}`;
+        sendClientCredentialsEmail(client.email, clientName, newTempPassword).catch((err) => {
+          console.error("[Email] Failed to resend client credentials:", err);
+        });
+        await createActivityLog({
+          userId: ctx.user.id,
+          clientId: input.clientId,
+          action: "client_credentials_resent",
+          description: `Portal credentials resent for client: ${clientName} (${client.email})`,
+        });
+        return { success: true, newTempPassword };
       }),
   }),
 
@@ -1520,6 +1571,23 @@ export const appRouter = router({
           });
           const newUser = await getUserByEmail(username);
           portalUserId = newUser?.id;
+
+          if (newUser) {
+            // Send credentials email
+            const clientName = `${input.firstName} ${input.lastName}`;
+            sendClientCredentialsEmail(username, clientName, password).catch((err) => {
+              console.error("[Email] Failed to send client credentials:", err);
+            });
+            // Send welcome in-app notification
+            await createNotification({
+              userId: newUser.id,
+              type: "case_updated",
+              title: "Welcome to Your Client Portal!",
+              message: `Hi ${input.firstName}, your Dispute2Suit portal account is ready. You can view your cases, upload documents, and track your progress here.`,
+              link: "/client-portal",
+              isRead: false,
+            });
+          }
         }
 
         const clientId = await createClient({

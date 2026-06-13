@@ -35,6 +35,7 @@ import ClientCaseDetail from "./pages/client-portal/ClientCaseDetail";
 import ClientDocuments from "./pages/client-portal/ClientDocuments";
 import ClientComments from "./pages/client-portal/ClientComments";
 import ClientTimeline from "./pages/client-portal/ClientTimeline";
+import ClientAccountSettings from "./pages/client-portal/ClientAccountSettings";
 
 // Admin pages
 import CROApplications from "./pages/admin/CROApplications";
@@ -85,6 +86,7 @@ function Router() {
       <Route path="/client-portal/documents" component={ClientDocuments} />
       <Route path="/client-portal/comments" component={ClientComments} />
       <Route path="/client-portal/timeline" component={ClientTimeline} />
+      <Route path="/client-portal/settings" component={ClientAccountSettings} />
 
       {/* CRO Portal routes */}
       <Route path="/cro-portal" component={CRODashboard} />

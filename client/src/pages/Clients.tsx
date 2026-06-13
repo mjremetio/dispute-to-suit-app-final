@@ -40,7 +40,7 @@ import { trpc } from "@/lib/trpc";
 import {
   Plus, Search, Users, Pencil, Trash2, KeyRound,
   ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal,
-  UserCheck, UserX, Eye, AtSign, X,
+  UserCheck, UserX, Eye, AtSign, X, Send,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
@@ -255,6 +255,13 @@ export default function Clients() {
       setIsResetPasswordOpen(false);
       setResetPasswordClientId(null);
       setNewPassword("");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const resendCredentialsMutation = trpc.clients.resendCredentials.useMutation({
+    onSuccess: () => {
+      toast.success("Credentials email resent successfully");
     },
     onError: (err) => toast.error(err.message),
   });
@@ -733,6 +740,15 @@ export default function Clients() {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => openResetPassword(client)}>
                                   <KeyRound className="w-4 h-4 mr-2" /> Reset Password
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    if (confirm(`Resend login credentials to ${client.firstName} ${client.lastName}? This will generate a new temporary password.`)) {
+                                      resendCredentialsMutation.mutate({ clientId: client.id });
+                                    }
+                                  }}
+                                >
+                                  <Send className="w-4 h-4 mr-2" /> Resend Credentials
                                 </DropdownMenuItem>
                               </>
                             )}
